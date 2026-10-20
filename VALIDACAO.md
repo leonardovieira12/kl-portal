@@ -1,32 +1,70 @@
-# Validação da entrega
+# Validação — KL Portal 2.0
 
-Verificação concluída em 20/10/2026, antes da publicação no Render.
+Executada em 20/10/2026. Esta é uma atualização de código; não foi publicada automaticamente no serviço do usuário.
 
-| Verificação | Resultado |
+| Camada | Resultado |
 |---|---|
-| Beauty: testes de domínio, autenticação, segurança e API com PGlite | 69 testes aprovados |
-| Beauty: TypeScript e compilação Vite com base `/beauty/` | Aprovados |
-| Portal: roteamento, redirecionamentos, encaminhamento HTTP, arquivos e health check | 9 testes aprovados, incluindo o agrupador |
-| KLSistemas: testes Go de autenticação, empresas, limite de login e impressão | 7 testes aprovados |
-| KLSistemas: compilação Linux | Binário gerado |
-| KLSistemas: interface multiempresa em JSDOM | Fluxo de login/cadastro aprovado com API simulada |
-| KLSistemas: fluxos DOM com API local real | 61 verificações aprovadas |
+| KL Beauty — domínio, segurança, autenticação, API e persistência | 69 testes aprovados |
+| Superadmin — migração, isolamento, contratos, usuários, mensalidades e auditoria | 26 testes aprovados |
+| Gateway — caminhos, redirecionamentos, arquivos, health check e superadmin | 10 testes aprovados |
+| KLSistemas — autenticação, empresas, limites e impressão | 7 testes Go aprovados |
+| Conjunto Node + Go com banco PGlite por protocolo PostgreSQL | 34 verificações HTTP aprovadas |
+| Interface superadmin em JSDOM com API do conjunto e banco de teste | 15 verificações aprovadas |
+| TypeScript / Vite e binário Linux do KLSistemas | Compilação aprovada |
 
-O teste DOM cobre produtos, vendas, estoque, fiado e recebimentos parciais, fornecedores, notas/XML, custos, contas, cancelamentos, exportações, concorrência e CSRF. O adaptador de teste remove `/mercado` porque conversa diretamente com o servidor Go; o gateway é testado separadamente.
+As contagens Node incluem os testes agrupadores apresentados pelo runner. As verificações HTTP/DOM são asserções de fluxos, não auditorias independentes.
 
-Limites: não foi construída/executada a imagem Docker neste ambiente; não foi realizado deploy no Render, teste de carga, revisão visual em navegador real ou teste integrado dos dois aplicativos com PostgreSQL remoto. Os testes Go de nuvem não substituem essa validação real. A migração de dados existentes não foi executada. Impressão nativa Windows não foi testada nesta entrega.
+## O que foi exercitado
 
-A revisão e os testes reduzem riscos, mas não garantem ausência de bugs. Não houve 100 revisões de cada linha, e essa contagem não seria uma garantia de qualidade. Faça a conferência pós-publicação descrita no guia antes de operar com dados reais.
+- Migração sobre empresas existentes sem perda de estado e sem bloqueio financeiro inicial.
+- Isolamento entre empresas, credencial de cliente sem acesso ao superadmin e proteção de origem.
+- Criação atômica de empresa/usuário; rollback em login duplicado.
+- Geração idempotente por competência e preservação do dia de vencimento em meses curtos.
+- Recebimento parcial, repetição de requisição sem duplicação, recusa de valores excedentes e negativos.
+- Quitação, liberação automática, estorno, reabertura de saldo e cancelamento de mensalidade.
+- Cancelamento manual que permanece bloqueado mesmo após pagamento.
+- Bloqueio de sessão já aberta nos dois sistemas.
+- Perfil consulta do mercado impedido de gravar no servidor.
+- Criação, vínculo, desativação e troca de senha de usuários; revogação de sessões.
+- Auditoria sem senhas e controle de versão do contrato para recusar tela desatualizada.
+- Formulários do painel: autenticação, empresa, usuário, recebimento, estorno, cancelamento, filtro e histórico.
 
-## Reproduzir testes adicionais da interface do mercado
+## Limites da validação
 
-Além dos comandos do guia, com Node e Go instalados, na pasta `mercado`:
+PGlite executa o motor PostgreSQL em WebAssembly; a suíte integrada utiliza seu adaptador de socket com os clientes Node pg e Go pgx. Isso valida as consultas e os fluxos locais, mas não reproduz todas as condições de concorrência, falhas de rede, recursos e configuração de um PostgreSQL remoto.
+
+Não houve teste de carga, auditoria externa de segurança, execução da imagem Docker v2, inspeção visual em navegador real ou publicação desta atualização no Render. JSDOM verifica comportamento de formulários, não aparência rasterizada. Não foram acessados dados de produção.
+
+Não há garantia de ausência de bugs nem alegação de 100 revisões por linha. Faça backup e valide a instalação após publicar conforme ATUALIZAR_PARA_V2.md.
+
+## Reproduzir testes básicos
+
+Pré-requisitos: Node 24 e Go compatível com mercado/go.mod. Na raiz do pacote:
 
 ```bash
-npm install --no-save --package-lock=false jsdom@30.1.3
-go build -o klsistemas-test .
-node tests/multitenant-ui.cjs
-node tests/dom-integration.cjs
+cd beauty
+npm ci --include=dev
+npm run build
+npm test
+cd ..
+npm run test:admin
+npm run test:gateway
+cd mercado
+go test ./...
+go build -buildvcs=false -o ../bin/klsistemas .
+cd ..
 ```
 
-Esses comandos são para ambiente Linux/macOS de desenvolvimento. O teste local inicia a porta 18763 e grava somente numa pasta temporária. Não o execute apontando para o banco de produção. JSDOM verifica comportamento da interface, mas não sua aparência renderizada.
+## Reproduzir integração e interface
+
+Em Linux, após os comandos acima:
+
+```bash
+cd qa
+npm ci
+npm test
+```
+
+A suíte sobe um banco descartável em memória no socket local 15439 e uma instância de teste do portal na porta 18090; o Go usa a porta 10001. As portas precisam estar livres. Os dados e senhas presentes nos testes são exclusivamente fictícios. A conexão é sobrescrita para o banco local, e nenhum DATABASE_URL de produção é usado pela suíte integrada.
+
+O diretório qa não entra na imagem de produção. Para publicação no Render, não é necessário instalar essas dependências manualmente.

@@ -311,7 +311,7 @@ func main() {
 	mux.HandleFunc("/api/register", registerAPI)
 	mux.HandleFunc("/api/logout", logoutAPI)
 	mux.HandleFunc("/api/config", func(w http.ResponseWriter, r *http.Request) {
-		reply(w, 200, map[string]any{"cloud": cloudMode, "version": version})
+		reply(w, 200, map[string]any{"cloud": cloudMode, "version": version, "managed": os.Getenv("KLS_MANAGED") == "1"})
 	})
 	mux.HandleFunc("/api/printers", printersAPI)
 	mux.HandleFunc("/api/print", printAPI)

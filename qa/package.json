@@ -1,0 +1,1 @@
+{"name":"kl-portal-qa","private":true,"version":"2.0.0","scripts":{"test":"node fullstack.mjs"},"devDependencies":{"@electric-sql/pglite":"0.5.10","@electric-sql/pglite-socket":"0.2.13","jsdom":"30.1.3"}}
