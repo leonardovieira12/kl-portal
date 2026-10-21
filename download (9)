@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+*.exe
+*.previous
+*.update
+app
+klsistemas-test
+node_modules/
+state.json*
+print-jobs/
+*.zip
+*.png

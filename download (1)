@@ -1,0 +1,11 @@
+node_modules/
+**/node_modules/
+**/dist/
+bin/
+.env
+.env.*
+!.env.example
+*.log
+
+mercado/klsistemas-test
+mercado/kls-zip-test.zip

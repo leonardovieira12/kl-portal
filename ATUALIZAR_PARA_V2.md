@@ -1,4 +1,4 @@
-# KL Portal 2.0 — Superadmin, empresas e mensalidades
+# KL Portal 2.2 — Superadmin, empresas e mensalidades
 
 Este pacote atualiza o portal já publicado. Continua sendo um Web Service com KL Beauty, KLSistemas e agora uma administração central em `/admin/`. Não foi publicado automaticamente em sua conta.
 
@@ -7,7 +7,7 @@ Este pacote atualiza o portal já publicado. Continua sendo um Web Service com K
 - Empresas de ambos os sistemas, com busca, filtros e exportação CSV.
 - Cadastro da empresa e do primeiro administrador numa operação única.
 - Nome, documento, contato, plano, valor mensal, próximo vencimento e tolerância.
-- Suspensão, cancelamento e reativação sem exclusão dos dados.
+- Suspensão, cancelamento, reativação e exclusão restaurável de cadastros sem apagar os dados.
 - Criação, vínculo, desativação, reativação, perfil e redefinição de senha de usuários.
 - Mensalidades recorrentes, recebimentos integrais ou parciais, estornos e cancelamento de mensalidades.
 - Bloqueio por atraso e liberação após quitação, quando a política automática está ativa.
@@ -38,7 +38,7 @@ Não substitua `DATABASE_URL`. Não crie outro PostgreSQL. Não remova `ADMIN_EM
 
 ## 3. Atualize os arquivos no mesmo repositório
 
-Extraia o ZIP. Abra a pasta `KL_Portal_Render_v2` e envie **o conteúdo dela** para a raiz do repositório que o serviço já usa, substituindo os arquivos anteriores.
+Extraia o ZIP. Abra a pasta extraída e envie **os arquivos e pastas do projeto** para a raiz do repositório que o serviço já usa, substituindo os arquivos anteriores.
 
 Você deve ver na raiz: `Dockerfile`, `server.mjs`, `package.json`, `portal.html` e as pastas `admin`, `beauty`, `mercado`, `scripts`, `tests` e `qa`.
 
@@ -130,13 +130,21 @@ Ao reativar, ajuste o próximo vencimento conforme o acordo. Se mantiver uma dat
 
 O bloqueio vale nas requisições ao servidor, inclusive em sessões existentes. Dados que já estavam carregados na tela não podem ser recolhidos, mas novas leituras e gravações serão recusadas.
 
-## 9. Feche acessos antigos que contornem as regras
+## 9. Exclua e restaure cadastros
+
+No painel, abra o contrato da empresa, mude a situação para **Cancelada** e salve. Em seguida, use **Excluir empresa**, digite o nome exato e informe o motivo. O acesso fica bloqueado, a empresa sai da lista normal e deixa de contar nos indicadores e nas novas mensalidades.
+
+A exclusão é reversível: os dados operacionais, usuários, mensalidades, recebimentos e auditoria ficam preservados. Para localizar o cadastro, filtre a situação por **Excluída**; abra a empresa e use **Restaurar cadastro**. A restauração mantém o contrato cancelado e o acesso bloqueado. Depois, se for apropriado, reative o contrato manualmente.
+
+Essa ação não apaga permanentemente os registros do banco.
+
+## 10. Feche acessos antigos que contornem as regras
 
 Se `klsistemas.onrender.com` ou outra instalação antiga usa o mesmo banco, ela não conhece necessariamente o controle de assinaturas desta versão. Um cliente pode continuar entrando por essa instalação antiga.
 
 Depois de confirmar que a versão nova está funcionando e que os registros estão preservados, desative o serviço antigo ou atualize-o com controles equivalentes. **Não exclua o banco.** A regra do superadmin não se aplica automaticamente a outro programa que usa as mesmas credenciais do banco.
 
-## 10. Conferência após publicar
+## 11. Conferência após publicar
 
 - Entre no superadmin e confira as empresas existentes.
 - Entre no Beauty e no mercado e confira os registros antigos.
@@ -168,3 +176,5 @@ O utilitário altera a senha e revoga as sessões. Remova as variáveis de recup
 ## Testes e limites
 
 Veja `VALIDACAO.md`. Os testes locais não substituem a conferência de sua instalação real. Não foi realizado deploy automático, teste de carga ou auditoria externa de segurança desta atualização.
+
+Atualização do mercado: veja `MERCADO_PESO_CAMERA.md` para cadastro de atalhos, venda por peso e câmera. Não há novas variáveis de ambiente.
