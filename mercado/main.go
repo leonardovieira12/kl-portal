@@ -24,7 +24,7 @@ import (
 //go:embed web/*
 var assets embed.FS
 
-const version = "2.2.0"
+const version = "2.4.0"
 
 var mu sync.Mutex
 var dataDir, statePath, token string

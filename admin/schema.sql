@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS kp_contracts(
  next_due date, anchor_day integer NOT NULL DEFAULT 1 CHECK(anchor_day BETWEEN 1 AND 31),
  grace_days integer NOT NULL DEFAULT 5 CHECK(grace_days BETWEEN 0 AND 90), auto_block boolean NOT NULL DEFAULT false,
  version integer NOT NULL DEFAULT 0, created_at timestamptz NOT NULL DEFAULT now(),
+ deleted_at timestamptz,
  PRIMARY KEY(app,company_id));
+ALTER TABLE kp_contracts ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
 CREATE TABLE IF NOT EXISTS kp_invoices(
  id text PRIMARY KEY,app text NOT NULL,company_id text NOT NULL,period text NOT NULL,
  due date NOT NULL,amount_cents integer NOT NULL CHECK(amount_cents>0),voided boolean NOT NULL DEFAULT false,

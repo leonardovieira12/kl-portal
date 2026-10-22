@@ -1,4 +1,4 @@
-# KL Portal 2.2
+# KL Portal 2.3
 
 KL Beauty, KLSistemas e Superadmin em um Web Service Docker.
 

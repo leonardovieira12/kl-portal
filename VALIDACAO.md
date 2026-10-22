@@ -1,4 +1,4 @@
-# Validação — KL Portal 2.2
+# Validação — KL Portal 2.3
 
 Validação original em 20/10/2026; atualização do mercado validada em 21/10/2026. Esta é uma atualização de código; não foi publicada automaticamente no serviço do usuário.
 
@@ -72,10 +72,14 @@ O diretório qa não entra na imagem de produção. Para publicação no Render,
 
 ## Adições da atualização de mercado (21/10/2026)
 
-- 43 verificações do mercado no conjunto com banco de teste: cadastro sem código, atalho exclusivo, busca ambígua, KG/gramas, multiplicadores, limites, total, persistência, nota, perda, cancelamento e leitura única da câmera.
+- 62 verificações do mercado no conjunto com banco de teste: cadastro sem código, atalho exclusivo, busca ambígua, KG/gramas, multiplicadores, limites, total, persistência, nota, perda, cancelamento e leitura única da câmera.
 - 61 verificações de regressão do mercado com API local real: venda, fiado, entrada XML, estoque, caixa, exportação, impressão e telas.
 - Decodificador incluído validado com imagens sintéticas EAN-13 e EAN-8.
 - Permissões e encerramento da câmera validados por simulação. Não houve teste com sensor físico de Android/iPhone.
 - O build Linux do Go incorpora camera.js e o decodificador. A biblioteca acompanha o pacote; nenhuma chave externa é necessária.
 
 A suíte atual inclui `qa/market-dom.cjs`. As contagens da tabela principal para Beauty e superadmin registram a validação anterior; essas partes não foram alteradas nesta atualização.
+
+## Consolidação 2.3
+
+Inclui toda a atualização anterior e: atalho com abertura automática em 450 ms (ou Enter), categoria independente da unidade, multiplicador x, câmera no cadastro preservando formulário e leitura direta para sacola na venda por unidade. O teste de mercado cobre também 3x antes da câmera, código desconhecido, produto por KG exigindo peso e cancelamento da câmera sem perda do cadastro.

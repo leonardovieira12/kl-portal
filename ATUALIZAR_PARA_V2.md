@@ -1,4 +1,4 @@
-# KL Portal 2.2 — Superadmin, empresas e mensalidades
+# KL Portal 2.3 — Superadmin, empresas e mensalidades
 
 Este pacote atualiza o portal já publicado. Continua sendo um Web Service com KL Beauty, KLSistemas e agora uma administração central em `/admin/`. Não foi publicado automaticamente em sua conta.
 

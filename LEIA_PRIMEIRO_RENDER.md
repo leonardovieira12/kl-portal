@@ -1,4 +1,4 @@
-# KL Portal 2.2
+# KL Portal 2.3
 
 Para atualizar o portal que já está funcionando, abra **ATUALIZAR_PARA_V2.md**. Ele contém todos os passos, variáveis, comandos e regras de operação.
 
