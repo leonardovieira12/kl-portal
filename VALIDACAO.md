@@ -1,4 +1,19 @@
-# Validação — KL Portal 2.3
+# Validação — KL Portal 2.4 / Mercado 2.5
+
+## Revisão de estoque e categorias — 22/10/2026
+
+- Testes Go aprovados e compilação Linux concluída com a interface atualizada embutida no executável.
+- 180 verificações integradas aprovadas: 34 HTTP, 21 superadmin, 69 fluxos de mercado e 56 estoque/categorias/troca de unidade.
+- 61 verificações de regressão com API Go local aprovadas para os fluxos de venda, financeiro, notas e relatórios.
+- Categorias persistentes sem produto vinculado, isolamento por empresa, lista SELECT e filtro de categoria.
+- Edição do saldo, exigência de motivo, zero explícito, rejeição de campo vazio, perda pelo custo anterior e histórico de ajustes.
+- Troca KG/UN em produto com vendas anteriores, snapshots históricos preservados, documentos antigos sem unidade identificados antes da troca, saldo novo informado explicitamente e conferência de retorno nos cancelamentos.
+- Teste de sequência KG → UN → KG: cancelamento não reutiliza automaticamente a quantidade da revisão antiga.
+- A suíte verificou os arquivos JS/HTML servidos pelo executável recém-compilado, incluindo a versão 2.5.0 e a ausência do campo de sugestões para categoria.
+- Câmera física, layout raster em dispositivo real e deploy em produção não foram executados nesta revisão.
+
+Os resultados abaixo documentam também a base das versões anteriores.
+
 
 Validação original em 20/10/2026; atualização do mercado validada em 21/10/2026. Esta é uma atualização de código; não foi publicada automaticamente no serviço do usuário.
 
@@ -82,4 +97,4 @@ A suíte atual inclui `qa/market-dom.cjs`. As contagens da tabela principal para
 
 ## Consolidação 2.3
 
-Inclui toda a atualização anterior e: atalho com abertura automática em 450 ms (ou Enter), categoria independente da unidade, multiplicador x, câmera no cadastro preservando formulário e leitura direta para sacola na venda por unidade. O teste de mercado cobre também 3x antes da câmera, código desconhecido, produto por KG exigindo peso e cancelamento da câmera sem perda do cadastro.
+Inclui toda a atualização anterior e: atalho com abertura automática em 450 ms (ou Enter), categoria em lista visível e independente da unidade, categoria personalizada, seleção explícita entre venda por unidade ou peso, multiplicador x, câmera no cadastro preservando formulário e leitura direta para sacola na venda por unidade. O teste de mercado cobre também 3x antes da câmera, código desconhecido, produto por KG exigindo peso e cancelamento da câmera sem perda do cadastro.
