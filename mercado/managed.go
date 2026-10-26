@@ -19,7 +19,7 @@ func managedPermission(ctx context.Context, s cloudSession) (string, error) {
  AND i.amount_cents>COALESCE((SELECT sum(p.amount_cents) FROM kp_payments p WHERE p.invoice_id=i.id),0))
  FROM kls_users u JOIN kls_memberships m ON m.user_id=u.id
  JOIN kp_contracts c ON c.app='mercado' AND c.company_id=m.company_id
- WHERE u.id=$1 AND m.company_id=$2`, s.UserID, s.CompanyID).Scan(&active, &version, &role, &status, &autoBlock, &overdue)
+ WHERE u.id=$1 AND m.company_id=$2 AND c.deleted_at IS NULL`, s.UserID, s.CompanyID).Scan(&active, &version, &role, &status, &autoBlock, &overdue)
 	if e != nil {
 		return "", fmt.Errorf("Não foi possível validar o acesso. Contate o administrador.")
 	}

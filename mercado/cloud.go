@@ -519,8 +519,7 @@ func cloudStateAPI(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
 	defer cancel()
-	mu.Lock()
-	defer mu.Unlock()
+	// Atomic PostgreSQL revisions protect each tenant without a global network lock.
 	if r.Method == "GET" {
 		b, rev, e := readCloud(ctx, s.CompanyID)
 		if e != nil {

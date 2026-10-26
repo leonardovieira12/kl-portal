@@ -1,0 +1,29 @@
+name: Portal regression and security
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: mercado/go.mod
+          cache-dependency-path: mercado/go.sum
+      - run: npm ci --prefix beauty
+      - run: npm ci --prefix qa
+      - run: npm run build --prefix beauty
+      - run: npm test --prefix beauty
+      - run: go test -race ./...
+        working-directory: mercado
+      - run: mkdir -p bin && cd mercado && go build -o ../bin/klsistemas .
+      - run: node --test tests/*.test.mjs
+      - run: npm test --prefix qa

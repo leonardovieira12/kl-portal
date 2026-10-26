@@ -203,3 +203,38 @@ func TestRegisterValidatesAndCreatesSeparateTenant(t *testing.T) {
 		t.Fatalf("invalid registration accepted: %d", w.Code)
 	}
 }
+
+func TestTenantNetworkWaitDoesNotBlockOtherCompanies(t *testing.T) {
+	setupCloudTests(t)
+	old := readCloud
+	defer func() { readCloud = old }()
+	started, release, finished := make(chan struct{}), make(chan struct{}), make(chan struct{})
+	readCloud = func(ctx context.Context, id string) (json.RawMessage, int64, error) {
+		if id == "slow" {
+			close(started)
+			<-release
+		}
+		return json.RawMessage(`{"db":{"products":[],"sales":[],"customers":[]}}`), 1, nil
+	}
+	sessions["slow-token"] = cloudSession{CompanyID: "slow", Expires: time.Now().Add(time.Hour)}
+	sessions["fast-token"] = cloudSession{CompanyID: "fast", Expires: time.Now().Add(time.Hour)}
+	go func() {
+		cloudRequest("GET", "/api/state", "", &http.Cookie{Name: "kls_session", Value: "slow-token"})
+		close(finished)
+	}()
+	<-started
+	fast := make(chan int, 1)
+	go func() {
+		fast <- cloudRequest("GET", "/api/state", "", &http.Cookie{Name: "kls_session", Value: "fast-token"}).Code
+	}()
+	select {
+	case status := <-fast:
+		if status != 200 {
+			t.Errorf("status %d", status)
+		}
+	case <-time.After(time.Second):
+		t.Error("another tenant blocked by network request")
+	}
+	close(release)
+	<-finished
+}

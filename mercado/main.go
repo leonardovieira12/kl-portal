@@ -358,7 +358,7 @@ func main() {
 			fail(w, 409, "Este serviço está hospedado. Impressão USB requer a ponte local do Windows; atualizações são publicadas pelo GitHub.")
 			return
 		}
-		mux.ServeHTTP(w, r)
+		compressedState(mux).ServeHTTP(w, r)
 	}), ReadHeaderTimeout: 10 * time.Second}
 	if !cloudMode {
 		launch("http://" + address)

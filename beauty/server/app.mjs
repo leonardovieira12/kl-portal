@@ -1,3 +1,4 @@
+import {sendJSON} from './http.mjs';
 import {randomUUID} from 'node:crypto';
 import {readFile,stat} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
@@ -10,7 +11,7 @@ const passwordSchema=z.string().min(12,'Senha deve ter pelo menos 12 caracteres.
 const root=resolve(fileURLToPath(new URL('../dist',import.meta.url)));
 const dummyHash=await hashPassword('dummy-password-never-used');
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.woff2':'font/woff2'};
-function send(res,status,body,extra={}){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...extra});res.end(JSON.stringify(body));}
+const send=sendJSON;
 async function body(req){if(!req.headers['content-type']?.includes('application/json'))throw Object.assign(Error('Envie JSON.'),{status:415});let n=0,parts=[];for await(const chunk of req){n+=chunk.length;if(n>200000)throw Object.assign(Error('Solicitação muito grande.'),{status:413});parts.push(chunk)}try{return JSON.parse(Buffer.concat(parts).toString('utf8'))}catch{throw Object.assign(Error('JSON inválido.'),{status:400})}}
 export function createHandler(pool,{production=true,appUrl='',managed=false,companyAccess=async()=>null}={}){return async function handler(req,res){
  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('X-Frame-Options','DENY');res.setHeader('Referrer-Policy','same-origin');res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');
