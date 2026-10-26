@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node --env-file-if-exists=.env server.mjs",
     "test:gateway": "node --test tests/gateway.test.mjs",
-    "test:admin": "node --test tests/admin.test.mjs"
+    "test:admin": "node --test tests/admin.test.mjs",
+    "test": "node --test tests/*.test.mjs"
   }
 }

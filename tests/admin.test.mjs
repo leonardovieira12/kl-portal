@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {randomUUID,pbkdf2Sync} from 'node:crypto';
-import {PGlite} from '../beauty/node_modules/@electric-sql/pglite/dist/index.js';
+import {PGlite} from '../qa/node_modules/@electric-sql/pglite/dist/index.js';
 import {initializeAdmin,createAdminHandler} from '../admin/service.mjs';
 import {access,generate,today,nextMonth} from '../admin/billing.mjs';
 import {createHandler} from '../beauty/server/app.mjs';
