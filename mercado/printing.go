@@ -106,7 +106,7 @@ func receiptLines(s receiptSale, c receiptSettings) []string {
 	}
 	add("")
 	add(c.Receipt)
-	add("KLSistemas " + version)
+	add("KL Mercado " + version)
 	return lines
 }
 func printersAPI(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +180,7 @@ func printAPI(w http.ResponseWriter, r *http.Request) {
 	if c.ReceiptWidth != 58 {
 		c.ReceiptWidth = 80
 	}
-	payload := printPayload{Action: "print", Printer: c.PrinterName, Width: c.ReceiptWidth, Title: fmt.Sprintf("KLSistemas - Venda %d", sale.ID), Lines: receiptLines(sale, c)}
+	payload := printPayload{Action: "print", Printer: c.PrinterName, Width: c.ReceiptWidth, Title: fmt.Sprintf("KL Mercado - Venda %d", sale.ID), Lines: receiptLines(sale, c)}
 	jobFile := ""
 	if !req.Test {
 		key := sha256.Sum256([]byte(fmt.Sprintf("%d|%s", sale.ID, sale.Date)))

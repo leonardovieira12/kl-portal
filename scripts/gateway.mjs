@@ -13,7 +13,7 @@ export function makePortal({beauty,pool,portal,marketPort,host,admin}){return as
  if(url.pathname.startsWith('/mercado/')){
  const headers={...req.headers};delete headers.connection;delete headers['transfer-encoding'];
  const upstream=httpRequest({hostname:'127.0.0.1',port:marketPort,path:req.url.slice('/mercado'.length),method:req.method,headers,timeout:30000},response=>{res.writeHead(response.statusCode||502,response.headers);response.pipe(res)});
- upstream.on('timeout',()=>upstream.destroy());upstream.on('error',()=>fail(502,'KLSistemas indisponível. Tente novamente.'));req.on('aborted',()=>upstream.destroy());res.on('close',()=>upstream.destroy());req.pipe(upstream);return
+ upstream.on('timeout',()=>upstream.destroy());upstream.on('error',()=>fail(502,'KL Mercado indisponível. Tente novamente.'));req.on('aborted',()=>upstream.destroy());res.on('close',()=>upstream.destroy());req.pipe(upstream);return
  }
  if(url.pathname==='/'&&(req.method==='GET'||req.method==='HEAD')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache','X-Frame-Options':'DENY','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'none'; script-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"});res.end(req.method==='HEAD'?undefined:portal);return}
  fail(404,'Escolha /beauty/ ou /mercado/.');

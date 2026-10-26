@@ -80,7 +80,7 @@ func auth(w http.ResponseWriter, r *http.Request) bool {
 	}
 	c, e := r.Cookie("kls_session")
 	if e != nil || c.Value != token {
-		fail(w, 401, "Sessão inválida. Reabra o KLSistemas.")
+		fail(w, 401, "Sessão inválida. Reabra o KL Mercado.")
 		return false
 	}
 	if r.Method != "GET" && r.Header.Get("Origin") != "http://"+r.Host {
@@ -285,7 +285,7 @@ func main() {
 		if err == nil {
 			defer resp.Body.Close()
 			b, _ := io.ReadAll(resp.Body)
-			if strings.Contains(string(b), "KLSistemas") {
+			if strings.Contains(string(b), "KL Mercado") {
 				launch("http://" + address)
 				return
 			}
@@ -305,7 +305,7 @@ func main() {
 	rand.Read(rnd)
 	token = hex.EncodeToString(rnd)
 	mux := http.NewServeMux()
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "KLSistemas "+version) })
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "KL Mercado "+version) })
 	mux.HandleFunc("/api/state", stateAPI)
 	mux.HandleFunc("/api/login", loginAPI)
 	mux.HandleFunc("/api/register", registerAPI)

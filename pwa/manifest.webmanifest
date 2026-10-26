@@ -3,7 +3,7 @@
   "name": "KL Portal",
   "short_name": "KL Portal",
   "lang": "pt-BR",
-  "description": "Salão e mercado em um aplicativo: KL Beauty e KLSistemas.",
+  "description": "Salão e mercado em um aplicativo: KL Beauty e KL Mercado.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
@@ -29,7 +29,7 @@
       "url": "/beauty/"
     },
     {
-      "name": "KLSistemas",
+      "name": "KL Mercado",
       "url": "/mercado/"
     }
   ]
