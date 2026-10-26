@@ -24,6 +24,7 @@ COPY beauty/lib ./beauty/lib
 COPY beauty/scripts ./beauty/scripts
 COPY package.json server.mjs portal.html ./
 COPY scripts ./scripts
+COPY pwa ./pwa
 COPY admin ./admin
 USER node
 EXPOSE 10000
