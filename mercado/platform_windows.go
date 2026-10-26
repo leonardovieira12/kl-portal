@@ -52,6 +52,6 @@ try {
 
 func showError(message string) {
 	m, _ := syscall.UTF16PtrFromString(message)
-	t, _ := syscall.UTF16PtrFromString("KLSistemas")
+	t, _ := syscall.UTF16PtrFromString("KL Mercado")
 	syscall.NewLazyDLL("user32.dll").NewProc("MessageBoxW").Call(0, uintptr(unsafe.Pointer(m)), uintptr(unsafe.Pointer(t)), 0x10)
 }
