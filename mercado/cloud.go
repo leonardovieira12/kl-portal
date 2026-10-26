@@ -30,8 +30,14 @@ var publicOrigin, publicHost, adminUser, passwordDigest string
 var cloudDB *pgxpool.Pool
 var sessionsMu sync.Mutex
 var sessions = map[string]cloudSession{}
-var loginAttempts int
-var loginWindow time.Time
+
+type loginBucket struct {
+	Attempts int
+	ResetAt  time.Time
+}
+
+var loginLimits = map[string]loginBucket{}
+var loginLimitSweep time.Time
 var errConflict = errors.New("conflict")
 var errUsernameTaken = errors.New("username taken")
 var readCloud = postgresRead
@@ -303,14 +309,26 @@ func cloudAuthenticated(w http.ResponseWriter, r *http.Request) (cloudSession, b
 	return s, true
 }
 
-func allowLoginAttempt(w http.ResponseWriter) bool {
+func allowLoginAttempt(w http.ResponseWriter, scope, subject string) bool {
+	sum := sha256.Sum256([]byte(scope + "\x00" + subject))
+	key := hex.EncodeToString(sum[:])
+	now := time.Now()
 	sessionsMu.Lock()
-	if time.Since(loginWindow) > time.Minute {
-		loginWindow = time.Now()
-		loginAttempts = 0
+	if !now.Before(loginLimitSweep) {
+		for existing, bucket := range loginLimits {
+			if !now.Before(bucket.ResetAt) {
+				delete(loginLimits, existing)
+			}
+		}
+		loginLimitSweep = now.Add(time.Minute)
 	}
-	loginAttempts++
-	blocked := loginAttempts > 10
+	bucket := loginLimits[key]
+	if bucket.ResetAt.IsZero() || !now.Before(bucket.ResetAt) {
+		bucket = loginBucket{ResetAt: now.Add(time.Minute)}
+	}
+	bucket.Attempts++
+	loginLimits[key] = bucket
+	blocked := bucket.Attempts > 10
 	sessionsMu.Unlock()
 	if blocked {
 		w.Header().Set("Retry-After", "60")
@@ -348,9 +366,6 @@ func loginAPI(w http.ResponseWriter, r *http.Request) {
 		fail(w, 403, "Origem inválida")
 		return
 	}
-	if !allowLoginAttempt(w) {
-		return
-	}
 	var body struct{ Username, Password string }
 	if json.NewDecoder(http.MaxBytesReader(w, r.Body, 8192)).Decode(&body) != nil {
 		fail(w, 400, "Dados inválidos")
@@ -360,7 +375,11 @@ func loginAPI(w http.ResponseWriter, r *http.Request) {
 		fail(w, 400, "Dados inválidos")
 		return
 	}
-	u, e := findCloudUser(r.Context(), strings.ToLower(strings.TrimSpace(body.Username)))
+	username := strings.ToLower(strings.TrimSpace(body.Username))
+	if !allowLoginAttempt(w, "login", username) {
+		return
+	}
+	u, e := findCloudUser(r.Context(), username)
 	if e != nil {
 		fail(w, 401, "Usuário ou senha inválidos.")
 		return
@@ -405,9 +424,6 @@ func registerAPI(w http.ResponseWriter, r *http.Request) {
 		fail(w, 403, "Origem inválida")
 		return
 	}
-	if !allowLoginAttempt(w) {
-		return
-	}
 	var body struct {
 		CompanyName string `json:"companyName"`
 		Document    string `json:"document"`
@@ -423,6 +439,9 @@ func registerAPI(w http.ResponseWriter, r *http.Request) {
 	body.Username = strings.ToLower(strings.TrimSpace(body.Username))
 	if len([]rune(body.CompanyName)) < 2 || len([]rune(body.CompanyName)) > 120 || len(body.Document) > 32 || !usernamePattern.MatchString(body.Username) || len(body.Password) < 12 || len(body.Password) > 1024 {
 		fail(w, 400, "Informe nome da empresa, usuário de 3 a 120 caracteres e senha com pelo menos 12 caracteres.")
+		return
+	}
+	if !allowLoginAttempt(w, "register", body.Username) {
 		return
 	}
 	u, e := createCloudTenant(r.Context(), body.CompanyName, body.Document, body.Username, body.Password)
