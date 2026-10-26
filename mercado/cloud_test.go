@@ -39,8 +39,8 @@ func setupCloudTests(t *testing.T) {
 	cloudMode = true
 	publicOrigin = "https://kls.example.com"
 	sessions = map[string]cloudSession{}
-	loginWindow = time.Time{}
-	loginAttempts = 0
+	loginLimits = map[string]loginBucket{}
+	loginLimitSweep = time.Time{}
 	t.Cleanup(func() {
 		cloudMode = false
 		sessions = map[string]cloudSession{}
@@ -155,6 +155,9 @@ func TestLoginRateLimit(t *testing.T) {
 	w := cloudRequest("POST", "/api/login", `{"username":"nobody","password":"wrong"}`, nil)
 	if w.Code != 429 || w.Header().Get("Retry-After") != "60" {
 		t.Fatalf("expected rate limit response, got status=%d retry-after=%q", w.Code, w.Header().Get("Retry-After"))
+	}
+	if w := cloudRequest("POST", "/api/login", `{"username":"another-company","password":"wrong"}`, nil); w.Code != 401 {
+		t.Fatalf("one account's attempts must not block another tenant, got %d", w.Code)
 	}
 }
 
